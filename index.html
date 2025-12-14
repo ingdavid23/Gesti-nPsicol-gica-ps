@@ -1,0 +1,2263 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión Psicológica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .stat-card {
+      transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .report-preview {
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .patient-card {
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .patient-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full overflow-auto"><!-- Header -->
+   <header id="header" class="shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+     <div class="flex justify-between items-center">
+      <div>
+       <h1 id="app-title" class="text-3xl font-bold">Gestión Psicológica</h1>
+       <p id="clinic-name" class="text-sm mt-1 opacity-80">Mi Consultorio</p>
+      </div>
+      <div class="flex gap-2"><button id="tab-dashboard" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📊 Dashboard </button> <button id="tab-patients" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 👤 Pacientes </button> <button id="tab-appointments" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📅 Citas </button> <button id="tab-sessions" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📝 Bitácora </button> <button id="tab-reports" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📈 Reportes </button> <button id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> ⚙️ Administración </button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"><!-- Dashboard View -->
+    <div id="view-dashboard" class="view-content">
+     <div class="mb-6">
+      <h2 class="text-2xl font-bold mb-4">Panel de Estadísticas</h2>
+     </div><!-- Stats Cards -->
+     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="stat-card rounded-xl p-6 shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-sm opacity-75 mb-1">Total Pacientes</p>
+         <p id="stat-total-patients" class="text-3xl font-bold">0</p>
+        </div>
+        <div class="text-4xl">
+         👥
+        </div>
+       </div>
+      </div>
+      <div class="stat-card rounded-xl p-6 shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-sm opacity-75 mb-1">Citas Pendientes</p>
+         <p id="stat-pending-appointments" class="text-3xl font-bold">0</p>
+        </div>
+        <div class="text-4xl">
+         ⏰
+        </div>
+       </div>
+      </div>
+      <div class="stat-card rounded-xl p-6 shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-sm opacity-75 mb-1">Sesiones Este Mes</p>
+         <p id="stat-sessions-month" class="text-3xl font-bold">0</p>
+        </div>
+        <div class="text-4xl">
+         📋
+        </div>
+       </div>
+      </div>
+      <div class="stat-card rounded-xl p-6 shadow-md">
+       <div class="flex items-center justify-between">
+        <div>
+         <p class="text-sm opacity-75 mb-1">Progreso Promedio</p>
+         <p id="stat-avg-progress" class="text-3xl font-bold">0%</p>
+        </div>
+        <div class="text-4xl">
+         📈
+        </div>
+       </div>
+      </div>
+     </div><!-- Patient Progress List -->
+     <div class="rounded-xl p-6 shadow-md">
+      <h3 class="text-xl font-bold mb-4">Progreso de Pacientes</h3>
+      <div id="patient-progress-list" class="space-y-4">
+       <p class="text-center py-8 opacity-60">No hay datos de pacientes aún</p>
+      </div>
+     </div>
+    </div><!-- Patients View -->
+    <div id="view-patients" class="view-content hidden">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Registro de Pacientes</h2>
+      <div class="flex gap-3"><button id="btn-new-patient" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> ➕ Nuevo Paciente </button>
+      </div>
+     </div><!-- Search Bar -->
+     <div class="mb-6"><input type="text" id="patient-search" placeholder="Buscar paciente por nombre, email o teléfono..." class="w-full px-4 py-3 rounded-lg border shadow-sm" style="border-color: rgba(0,0,0,0.1);">
+     </div><!-- Patients List -->
+     <div id="patients-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <p class="col-span-full text-center py-8 opacity-60">No hay pacientes registrados</p>
+     </div>
+    </div><!-- Appointments View -->
+    <div id="view-appointments" class="view-content hidden">
+     <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Gestión de Citas</h2>
+      <div class="flex gap-3"><button id="btn-view-calendar" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> 📅 Calendario </button> <button id="btn-view-list" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> 📋 Lista </button> <button id="btn-new-appointment" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> ➕ Nueva Cita </button>
+      </div>
+     </div><!-- Calendar View -->
+     <div id="calendar-view" class="rounded-xl p-6 shadow-md mb-6">
+      <div class="flex justify-between items-center mb-6"><button id="btn-prev-month" class="px-4 py-2 rounded-lg font-medium" style="background: #64748b; color: #ffffff;"> ← Anterior </button>
+       <h3 id="calendar-month-year" class="text-2xl font-bold"></h3><button id="btn-next-month" class="px-4 py-2 rounded-lg font-medium" style="background: #64748b; color: #ffffff;"> Siguiente → </button>
+      </div>
+      <div class="grid grid-cols-7 gap-2">
+       <div class="text-center font-bold py-2">
+        Dom
+       </div>
+       <div class="text-center font-bold py-2">
+        Lun
+       </div>
+       <div class="text-center font-bold py-2">
+        Mar
+       </div>
+       <div class="text-center font-bold py-2">
+        Mié
+       </div>
+       <div class="text-center font-bold py-2">
+        Jue
+       </div>
+       <div class="text-center font-bold py-2">
+        Vie
+       </div>
+       <div class="text-center font-bold py-2">
+        Sáb
+       </div>
+      </div>
+      <div id="calendar-days" class="grid grid-cols-7 gap-2 mt-2"></div>
+     </div><!-- List View -->
+     <div id="list-view" class="rounded-xl p-6 shadow-md hidden">
+      <div id="appointments-list" class="space-y-3">
+       <p class="text-center py-8 opacity-60">No hay citas programadas</p>
+      </div>
+     </div>
+    </div><!-- Sessions View -->
+    <div id="view-sessions" class="view-content hidden">
+     <div class="mb-6">
+      <h2 class="text-2xl font-bold">Bitácora de Sesiones</h2>
+     </div><!-- Pending Evaluations -->
+     <div class="rounded-xl p-6 shadow-md mb-6">
+      <h3 class="text-xl font-bold mb-4">⏳ Citas Pendientes de Evaluar</h3>
+      <div id="pending-evaluations-list" class="space-y-3">
+       <p class="text-center py-8 opacity-60">No hay citas pendientes de evaluar</p>
+      </div>
+     </div><!-- Evaluated Sessions -->
+     <div class="rounded-xl p-6 shadow-md">
+      <h3 class="text-xl font-bold mb-4">✅ Sesiones Evaluadas</h3>
+      <div id="evaluated-sessions-list" class="space-y-3">
+       <p class="text-center py-8 opacity-60">No hay sesiones evaluadas</p>
+      </div>
+     </div>
+    </div><!-- Administration View -->
+    <div id="view-admin" class="view-content hidden">
+     <div class="mb-6">
+      <h2 class="text-2xl font-bold mb-2">Administración del Sistema</h2>
+      <p class="opacity-75">Gestiona tus datos y realiza respaldos de seguridad</p>
+     </div><!-- Backup Section -->
+     <div class="rounded-xl p-6 shadow-md mb-6">
+      <h3 class="text-xl font-bold mb-4">💾 Respaldo de Datos</h3>
+      <p class="mb-4 opacity-75">Exporta todos tus datos en formato JSON para crear un respaldo de seguridad. Podrás restaurar estos datos en cualquier momento.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+       <div class="p-4 rounded-lg" style="background: rgba(59, 130, 246, 0.1);">
+        <div class="text-3xl font-bold" id="admin-total-records">
+         0
+        </div>
+        <div class="text-sm opacity-75">
+         Total de Registros
+        </div>
+       </div>
+       <div class="p-4 rounded-lg" style="background: rgba(16, 185, 129, 0.1);">
+        <div class="text-sm font-bold" id="admin-last-backup">
+         Nunca
+        </div>
+        <div class="text-sm opacity-75">
+         Último Respaldo
+        </div>
+       </div>
+      </div>
+      <div class="flex gap-3"><button id="btn-export-backup" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow" style="background: #3b82f6; color: #ffffff;"> 📥 Exportar Respaldo (JSON) </button> <label for="file-import-backup" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow cursor-pointer" style="background: #10b981; color: #ffffff; display: inline-block;"> 📤 Importar Respaldo (JSON) </label> <input type="file" id="file-import-backup" accept=".json" style="display: none;">
+      </div>
+     </div><!-- Data Overview -->
+     <div class="rounded-xl p-6 shadow-md mb-6">
+      <h3 class="text-xl font-bold mb-4">📊 Vista General de Datos</h3>
+      <div class="space-y-3">
+       <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,0,0,0.03);">
+        <div class="flex items-center gap-3"><span class="text-2xl">👥</span>
+         <div>
+          <div class="font-bold">
+           Pacientes
+          </div>
+          <div class="text-sm opacity-75">
+           Información personal y clínica
+          </div>
+         </div>
+        </div>
+        <div class="text-2xl font-bold" id="admin-patients-count">
+         0
+        </div>
+       </div>
+       <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,0,0,0.03);">
+        <div class="flex items-center gap-3"><span class="text-2xl">📅</span>
+         <div>
+          <div class="font-bold">
+           Citas
+          </div>
+          <div class="text-sm opacity-75">
+           Todas las citas programadas
+          </div>
+         </div>
+        </div>
+        <div class="text-2xl font-bold" id="admin-appointments-count">
+         0
+        </div>
+       </div>
+       <div class="flex justify-between items-center p-3 rounded-lg" style="background: rgba(0,0,0,0.03);">
+        <div class="flex items-center gap-3"><span class="text-2xl">✅</span>
+         <div>
+          <div class="font-bold">
+           Sesiones Evaluadas
+          </div>
+          <div class="text-sm opacity-75">
+           Citas con evaluación completa
+          </div>
+         </div>
+        </div>
+        <div class="text-2xl font-bold" id="admin-evaluated-count">
+         0
+        </div>
+       </div>
+      </div>
+     </div><!-- Danger Zone -->
+     <div class="rounded-xl p-6 shadow-md border-2" style="border-color: #ef4444;">
+      <h3 class="text-xl font-bold mb-2" style="color: #ef4444;">⚠️ Zona Peligrosa</h3>
+      <p class="mb-4 opacity-75">Estas acciones son permanentes y no se pueden deshacer. Asegúrate de tener un respaldo antes de proceder.</p><button id="btn-clear-all-data" class="px-6 py-3 rounded-lg font-medium" style="background: #ef4444; color: #ffffff;"> 🗑️ Eliminar Todos los Datos </button>
+     </div>
+    </div><!-- Reports View -->
+    <div id="view-reports" class="view-content hidden">
+     <div class="mb-6">
+      <h2 class="text-2xl font-bold mb-2">Reportes por Paciente</h2>
+      <p class="opacity-75">Genera informes detallados del progreso y sesiones de cada paciente</p>
+     </div><!-- Patient Selector -->
+     <div class="rounded-xl p-6 shadow-md mb-6"><label class="block mb-2 font-medium">Seleccionar Paciente:</label> <select id="report-patient-select" class="w-full px-4 py-3 rounded-lg border shadow-sm" style="border-color: rgba(0,0,0,0.1); font-size: 16px;"> <option value="">Selecciona un paciente para generar su reporte...</option> </select>
+     </div><!-- Report Content -->
+     <div id="patient-report-container" class="hidden"><!-- Patient Info Card -->
+      <div class="rounded-xl p-6 shadow-md mb-6">
+       <div class="flex justify-between items-start mb-4">
+        <div class="flex items-center gap-4">
+         <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl" id="report-avatar" style="background: rgba(59, 130, 246, 0.2);">
+          👤
+         </div>
+         <div>
+          <h3 class="text-2xl font-bold" id="report-patient-name"></h3>
+          <p class="opacity-75" id="report-patient-info"></p>
+         </div>
+        </div>
+        <div class="flex gap-2"><button id="btn-view-patient-report" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #3b82f6; color: #ffffff;"> 👁️ Vista Previa </button> <button id="btn-download-patient-report" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #10b981; color: #ffffff;"> 💾 Descargar </button>
+        </div>
+       </div><!-- Quick Stats -->
+       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div class="p-4 rounded-lg text-center" style="background: rgba(59, 130, 246, 0.1);">
+         <div class="text-3xl font-bold" id="report-total-sessions">
+          0
+         </div>
+         <div class="text-sm opacity-75">
+          Sesiones Totales
+         </div>
+        </div>
+        <div class="p-4 rounded-lg text-center" style="background: rgba(245, 158, 11, 0.1);">
+         <div class="text-3xl font-bold" id="report-avg-mood">
+          0
+         </div>
+         <div class="text-sm opacity-75">
+          Ánimo Promedio
+         </div>
+        </div>
+        <div class="p-4 rounded-lg text-center" style="background: rgba(139, 92, 246, 0.1);">
+         <div class="text-3xl font-bold" id="report-avg-progress">
+          0
+         </div>
+         <div class="text-sm opacity-75">
+          Progreso Promedio
+         </div>
+        </div>
+        <div class="p-4 rounded-lg text-center" style="background: rgba(16, 185, 129, 0.1);">
+         <div class="text-3xl font-bold" id="report-total-hours">
+          0h
+         </div>
+         <div class="text-sm opacity-75">
+          Horas Totales
+         </div>
+        </div>
+       </div>
+      </div><!-- Progress Chart -->
+      <div class="rounded-xl p-6 shadow-md mb-6">
+       <h3 class="text-xl font-bold mb-4">📈 Evolución del Progreso y Ánimo</h3>
+       <div id="progress-chart" class="space-y-3">
+        <p class="text-center py-8 opacity-60">No hay datos de progreso</p>
+       </div>
+      </div><!-- Session Types Distribution -->
+      <div class="rounded-xl p-6 shadow-md mb-6">
+       <h3 class="text-xl font-bold mb-4">📊 Tipos de Sesión</h3>
+       <div id="report-session-types" class="space-y-3">
+        <p class="text-center py-4 opacity-60">No hay datos disponibles</p>
+       </div>
+      </div><!-- Session History -->
+      <div class="rounded-xl p-6 shadow-md">
+       <h3 class="text-xl font-bold mb-4">📝 Historial de Sesiones</h3>
+       <div id="report-session-history" class="space-y-3">
+        <p class="text-center py-8 opacity-60">No hay sesiones registradas</p>
+       </div>
+      </div>
+     </div><!-- Empty State -->
+     <div id="report-empty-state" class="rounded-xl p-12 shadow-md text-center">
+      <div class="text-6xl mb-4">
+       📋
+      </div>
+      <h3 class="text-xl font-bold mb-2">No hay pacientes disponibles</h3>
+      <p class="opacity-75 mb-4">Registra pacientes y completa sesiones para generar reportes</p><button id="btn-goto-patients" class="px-6 py-3 rounded-lg font-medium" style="background: #3b82f6; color: #ffffff;"> ➕ Ir a Pacientes </button>
+     </div>
+    </div>
+   </main>
+  </div>
+  <script>
+    let allData = [];
+    let currentView = 'dashboard';
+    let isLoading = false;
+    let currentCalendarDate = new Date();
+    let appointmentView = 'calendar';
+    let selectedReportPatient = null;
+
+    const defaultConfig = {
+      background_color: '#f0f4f8',
+      surface_color: '#ffffff',
+      text_color: '#1a202c',
+      primary_color: '#3b82f6',
+      secondary_color: '#64748b',
+      font_family: 'Inter',
+      font_size: 16,
+      app_title: 'Gestión Psicológica',
+      clinic_name: 'Mi Consultorio',
+      add_appointment_text: 'Nueva Cita',
+      add_patient_text: 'Nuevo Paciente'
+    };
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+      toast.style.color = '#ffffff';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function switchView(viewName) {
+      currentView = viewName;
+      document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.style.background = window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color;
+        btn.style.color = '#ffffff';
+      });
+      
+      const activeTab = document.getElementById(`tab-${viewName}`);
+      activeTab.style.background = window.elementSdk?.config?.primary_color || defaultConfig.primary_color;
+      activeTab.style.color = '#ffffff';
+    }
+
+    function showModal(title, content) {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+      backdrop.onclick = (e) => {
+        if (e.target === backdrop) backdrop.remove();
+      };
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-content';
+      modal.style.background = defaultConfig.surface_color;
+      modal.style.color = defaultConfig.text_color;
+      
+      modal.innerHTML = `
+        <div style="padding: 24px; border-bottom: 1px solid rgba(0,0,0,0.1);">
+          <h3 style="font-size: ${(window.elementSdk?.config?.font_size || defaultConfig.font_size) * 1.5}px; font-weight: bold;">${title}</h3>
+        </div>
+        <div style="padding: 24px;">
+          ${content}
+        </div>
+      `;
+      
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+      return backdrop;
+    }
+
+    function calculateAge(birthDate) {
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    function showPatientForm(patient = null) {
+      if (!patient && allData.length >= 999) {
+        showToast('Límite de 999 registros alcanzado. Por favor elimina algunos registros primero.', 'error');
+        return;
+      }
+
+      const isEdit = !!patient;
+      const content = `
+        <form id="patient-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nombre Completo *</label>
+              <input type="text" id="patient-fullname" required value="${patient?.patient_name || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email *</label>
+              <input type="email" id="patient-email" required value="${patient?.email || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Teléfono *</label>
+              <input type="tel" id="patient-phone" required value="${patient?.phone || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Fecha de Nacimiento *</label>
+              <input type="date" id="patient-birthdate" required value="${patient?.birth_date || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">G��nero *</label>
+              <select id="patient-gender" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+                <option value="">Seleccionar...</option>
+                <option value="masculino" ${patient?.gender === 'masculino' ? 'selected' : ''}>Masculino</option>
+                <option value="femenino" ${patient?.gender === 'femenino' ? 'selected' : ''}>Femenino</option>
+                <option value="otro" ${patient?.gender === 'otro' ? 'selected' : ''}>Otro</option>
+                <option value="prefiero-no-decir" ${patient?.gender === 'prefiero-no-decir' ? 'selected' : ''}>Prefiero no decir</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Dirección</label>
+              <input type="text" id="patient-address" value="${patient?.address || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Contacto de Emergencia</label>
+              <input type="text" id="patient-emergency-contact" value="${patient?.emergency_contact || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Teléfono de Emergencia</label>
+              <input type="tel" id="patient-emergency-phone" value="${patient?.emergency_phone || ''}" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+
+            <div class="md:col-span-2">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Notas / Historial Clínico</label>
+              <textarea id="patient-clinical-notes" rows="4" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">${patient?.clinical_notes || ''}</textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+            <button type="button" id="cancel-patient-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+              Cancelar
+            </button>
+            <button type="submit" id="save-patient-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+              ${isEdit ? 'Actualizar' : 'Registrar'} Paciente
+            </button>
+          </div>
+        </form>
+      `;
+
+      const modal = showModal(isEdit ? 'Editar Paciente' : 'Nuevo Paciente', content);
+
+      document.getElementById('cancel-patient-btn').onclick = () => modal.remove();
+      
+      document.getElementById('patient-form').onsubmit = (e) => {
+        e.preventDefault();
+        
+        if (isLoading) return;
+        isLoading = true;
+        
+        const saveBtn = document.getElementById('save-patient-btn');
+        saveBtn.textContent = isEdit ? 'Actualizando...' : 'Registrando...';
+        saveBtn.disabled = true;
+
+        const patientData = {
+          type: 'patient',
+          __backendId: patient?.__backendId || 'patient_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          patient_name: document.getElementById('patient-fullname').value,
+          email: document.getElementById('patient-email').value,
+          phone: document.getElementById('patient-phone').value,
+          birth_date: document.getElementById('patient-birthdate').value,
+          gender: document.getElementById('patient-gender').value,
+          address: document.getElementById('patient-address').value,
+          emergency_contact: document.getElementById('patient-emergency-contact').value,
+          emergency_phone: document.getElementById('patient-emergency-phone').value,
+          clinical_notes: document.getElementById('patient-clinical-notes').value,
+          created_at: patient?.created_at || new Date().toISOString(),
+          date: '',
+          time: '',
+          duration: 0,
+          status: '',
+          notes: '',
+          mood_rating: 0,
+          progress_rating: 0,
+          session_type: '',
+          evaluated: false
+        };
+
+        if (isEdit) {
+          const index = allData.findIndex(d => d.__backendId === patient.__backendId);
+          if (index !== -1) {
+            allData[index] = patientData;
+          }
+        } else {
+          allData.push(patientData);
+        }
+
+        isLoading = false;
+        updateAllViews();
+        showToast(isEdit ? 'Paciente actualizado exitosamente' : 'Paciente registrado exitosamente');
+        modal.remove();
+      };
+    }
+
+    function showPatientDetails(patient) {
+      const appointments = allData.filter(d => d.type === 'appointment' && d.patient_name.toLowerCase() === patient.patient_name.toLowerCase());
+      const sessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+      const age = calculateAge(patient.birth_date);
+
+      const avgMood = sessions.length > 0
+        ? (sessions.reduce((sum, s) => sum + s.mood_rating, 0) / sessions.length).toFixed(1)
+        : 0;
+      
+      const avgProgress = sessions.length > 0
+        ? (sessions.reduce((sum, s) => sum + s.progress_rating, 0) / sessions.length).toFixed(1)
+        : 0;
+
+      const recentSessions = sessions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+      const content = `
+        <div style="max-height: 70vh; overflow-y: auto;">
+          <!-- Personal Info -->
+          <div class="mb-6 p-4 rounded-lg" style="background: rgba(0,0,0,0.03);">
+            <h4 class="font-bold mb-3" style="font-size: ${(window.elementSdk?.config?.font_size || defaultConfig.font_size) * 1.2}px;">Información Personal</h4>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div><strong>Edad:</strong> ${age} años</div>
+              <div><strong>Género:</strong> ${patient.gender}</div>
+              <div><strong>Email:</strong> ${patient.email}</div>
+              <div><strong>Teléfono:</strong> ${patient.phone}</div>
+              ${patient.address ? `<div class="col-span-2"><strong>Dirección:</strong> ${patient.address}</div>` : ''}
+              ${patient.emergency_contact ? `<div class="col-span-2"><strong>Contacto de Emergencia:</strong> ${patient.emergency_contact} (${patient.emergency_phone})</div>` : ''}
+            </div>
+          </div>
+
+          <!-- Statistics -->
+          <div class="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-3 rounded-lg text-center" style="background: rgba(59, 130, 246, 0.1);">
+              <div class="text-2xl font-bold">${appointments.length}</div>
+              <div class="text-xs opacity-75">Citas Totales</div>
+            </div>
+            <div class="p-3 rounded-lg text-center" style="background: rgba(16, 185, 129, 0.1);">
+              <div class="text-2xl font-bold">${sessions.length}</div>
+              <div class="text-xs opacity-75">Sesiones</div>
+            </div>
+            <div class="p-3 rounded-lg text-center" style="background: rgba(245, 158, 11, 0.1);">
+              <div class="text-2xl font-bold">${avgMood}</div>
+              <div class="text-xs opacity-75">Ánimo Promedio</div>
+            </div>
+            <div class="p-3 rounded-lg text-center" style="background: rgba(139, 92, 246, 0.1);">
+              <div class="text-2xl font-bold">${avgProgress}</div>
+              <div class="text-xs opacity-75">Progreso Promedio</div>
+            </div>
+          </div>
+
+          <!-- Clinical Notes -->
+          ${patient.clinical_notes ? `
+            <div class="mb-6">
+              <h4 class="font-bold mb-2">Notas Clínicas:</h4>
+              <div class="p-3 rounded-lg text-sm" style="background: rgba(0,0,0,0.03);">
+                ${patient.clinical_notes}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Recent Sessions -->
+          ${recentSessions.length > 0 ? `
+            <div class="mb-6">
+              <h4 class="font-bold mb-3">Últimas 5 Sesiones:</h4>
+              <div class="space-y-2">
+                ${recentSessions.map(s => `
+                  <div class="p-3 rounded-lg border text-sm" style="border-color: rgba(0,0,0,0.1);">
+                    <div class="flex justify-between mb-1">
+                      <span class="font-bold">${new Date(s.date).toLocaleDateString('es-ES')}</span>
+                      <span class="px-2 py-1 rounded text-xs" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+                        ${s.session_type}
+                      </span>
+                    </div>
+                    <div class="flex gap-3 text-xs opacity-75 mb-1">
+                      <span>😊 Ánimo: ${s.mood_rating}/10</span>
+                      <span>📈 Progreso: ${s.progress_rating}/10</span>
+                    </div>
+                    <div class="text-xs">${s.notes}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : '<p class="mb-6 text-sm opacity-60 text-center">No hay sesiones registradas aún</p>'}
+
+          <!-- Actions -->
+          <div class="flex gap-2 justify-end">
+            <button id="edit-patient-btn" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+              ✏️ Editar
+            </button>
+            <button id="delete-patient-btn" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #ef4444; color: #ffffff;">
+              🗑️ Eliminar
+            </button>
+            <button id="close-details-btn" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      `;
+
+      const modal = showModal(`Detalles de ${patient.patient_name}`, content);
+
+      document.getElementById('edit-patient-btn').onclick = () => {
+        modal.remove();
+        showPatientForm(patient);
+      };
+
+      document.getElementById('delete-patient-btn').onclick = async () => {
+        if (isLoading) return;
+        
+        const confirmDiv = document.createElement('div');
+        confirmDiv.className = 'mt-2 p-3 rounded';
+        confirmDiv.style.background = '#fee';
+        confirmDiv.innerHTML = `
+          <p class="text-sm mb-2">⚠️ ¿Eliminar este paciente? Esta acción no se puede deshacer.</p>
+          <button class="confirm-delete px-3 py-1 rounded text-sm mr-2" style="background: #ef4444; color: #fff;">Sí, eliminar</button>
+          <button class="cancel-delete px-3 py-1 rounded text-sm" style="background: #64748b; color: #fff;">Cancelar</button>
+        `;
+        
+        modal.querySelector('.flex.gap-2').before(confirmDiv);
+
+        confirmDiv.querySelector('.cancel-delete').onclick = () => confirmDiv.remove();
+        confirmDiv.querySelector('.confirm-delete').onclick = () => {
+          isLoading = true;
+          confirmDiv.querySelector('.confirm-delete').textContent = 'Eliminando...';
+          confirmDiv.querySelector('.confirm-delete').disabled = true;
+          
+          const index = allData.findIndex(d => d.__backendId === patient.__backendId);
+          if (index !== -1) {
+            allData.splice(index, 1);
+          }
+          
+          isLoading = false;
+          updateAllViews();
+          showToast('Paciente eliminado');
+          modal.remove();
+        };
+      };
+
+      document.getElementById('close-details-btn').onclick = () => modal.remove();
+    }
+
+    function renderPatients(searchTerm = '') {
+      const patients = allData.filter(d => d.type === 'patient');
+      const container = document.getElementById('patients-grid');
+
+      let filteredPatients = patients;
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        filteredPatients = patients.filter(p => 
+          p.patient_name.toLowerCase().includes(term) ||
+          p.email.toLowerCase().includes(term) ||
+          p.phone.includes(term)
+        );
+      }
+
+      if (filteredPatients.length === 0) {
+        container.innerHTML = '<p class="col-span-full text-center py-8 opacity-60">No se encontraron pacientes</p>';
+        return;
+      }
+
+      container.innerHTML = filteredPatients.map(patient => {
+        const appointments = allData.filter(d => d.type === 'appointment' && d.patient_name.toLowerCase() === patient.patient_name.toLowerCase());
+        const sessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+        const age = calculateAge(patient.birth_date);
+
+        return `
+          <div class="patient-card rounded-xl p-5 shadow-md" style="background: ${window.elementSdk?.config?.surface_color || defaultConfig.surface_color};" data-id="${patient.__backendId}">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3 flex-1">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}20;">
+                  👤
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg" style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color};">${patient.patient_name}</h3>
+                  <p class="text-sm opacity-75">${age} años • ${patient.gender}</p>
+                </div>
+              </div>
+              <button class="delete-patient-btn px-3 py-2 rounded-lg text-sm font-medium hover:opacity-80 transition-opacity" style="background: #ef4444; color: #ffffff;" data-patient-id="${patient.__backendId}" onclick="event.stopPropagation();">
+                🗑️
+              </button>
+            </div>
+            
+            <div class="space-y-1 text-sm mb-3">
+              <div class="opacity-75">📧 ${patient.email}</div>
+              <div class="opacity-75">📱 ${patient.phone}</div>
+            </div>
+
+            <div class="flex gap-2 text-xs">
+              <span class="px-2 py-1 rounded" style="background: rgba(59, 130, 246, 0.1);">
+                ${appointments.length} citas
+              </span>
+              <span class="px-2 py-1 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                ${sessions.length} sesiones
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.patient-card').forEach(card => {
+        card.onclick = () => {
+          const patient = allData.find(d => d.__backendId === card.dataset.id);
+          if (patient) showPatientDetails(patient);
+        };
+      });
+
+      document.querySelectorAll('.delete-patient-btn').forEach(btn => {
+        btn.onclick = async (e) => {
+          e.stopPropagation();
+          
+          const patientId = btn.dataset.patientId;
+          const patient = allData.find(d => d.__backendId === patientId);
+          
+          if (!patient || isLoading) return;
+          
+          const confirmDiv = document.createElement('div');
+          confirmDiv.className = 'fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center z-50';
+          confirmDiv.style.background = 'rgba(0,0,0,0.5)';
+          confirmDiv.innerHTML = `
+            <div class="rounded-xl p-6 shadow-xl max-w-md" style="background: ${window.elementSdk?.config?.surface_color || defaultConfig.surface_color};">
+              <div class="text-center mb-4">
+                <div class="text-5xl mb-3">⚠️</div>
+                <h3 class="text-xl font-bold mb-2">¿Eliminar Paciente?</h3>
+                <p class="text-sm opacity-75">Estás a punto de eliminar a <strong>${patient.patient_name}</strong>.</p>
+                <p class="text-sm text-red-600 font-medium mt-2">Esta acción no se puede deshacer.</p>
+              </div>
+              <div class="flex gap-3 justify-center">
+                <button class="cancel-delete-patient px-4 py-2 rounded-lg font-medium" style="background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+                  Cancelar
+                </button>
+                <button class="confirm-delete-patient px-4 py-2 rounded-lg font-medium" style="background: #ef4444; color: #ffffff;">
+                  Sí, Eliminar
+                </button>
+              </div>
+            </div>
+          `;
+          
+          document.body.appendChild(confirmDiv);
+          
+          confirmDiv.querySelector('.cancel-delete-patient').onclick = () => confirmDiv.remove();
+          
+          confirmDiv.querySelector('.confirm-delete-patient').onclick = () => {
+            isLoading = true;
+            const confirmBtn = confirmDiv.querySelector('.confirm-delete-patient');
+            confirmBtn.textContent = 'Eliminando...';
+            confirmBtn.disabled = true;
+            
+            const index = allData.findIndex(d => d.__backendId === patientId);
+            if (index !== -1) {
+              allData.splice(index, 1);
+            }
+            
+            isLoading = false;
+            updateAllViews();
+            showToast('Paciente eliminado exitosamente');
+            confirmDiv.remove();
+          };
+          
+          confirmDiv.onclick = (e) => {
+            if (e.target === confirmDiv) confirmDiv.remove();
+          };
+        };
+      });
+    }
+
+    function generatePatientReportText(patient, sessions) {
+      const clinicName = window.elementSdk?.config?.clinic_name || defaultConfig.clinic_name;
+      const age = calculateAge(patient.birth_date);
+      const now = new Date();
+      
+      const totalHours = sessions.reduce((sum, s) => sum + (s.duration || 60), 0) / 60;
+      const avgMood = sessions.length > 0 
+        ? (sessions.reduce((sum, s) => sum + s.mood_rating, 0) / sessions.length).toFixed(1) 
+        : 0;
+      const avgProgress = sessions.length > 0 
+        ? (sessions.reduce((sum, s) => sum + s.progress_rating, 0) / sessions.length).toFixed(1) 
+        : 0;
+      
+      const sessionTypes = {};
+      sessions.forEach(s => {
+        if (s.session_type) {
+          sessionTypes[s.session_type] = (sessionTypes[s.session_type] || 0) + 1;
+        }
+      });
+      
+      const typeLabels = {
+        individual: 'Individual',
+        pareja: 'Pareja',
+        familiar: 'Familiar',
+        grupal: 'Grupal'
+      };
+      
+      let report = `${'='.repeat(70)}\n`;
+      report += `  REPORTE CLÍNICO DE PACIENTE\n`;
+      report += `  ${clinicName.toUpperCase()}\n`;
+      report += `${'='.repeat(70)}\n\n`;
+      report += `Fecha de generación: ${now.toLocaleDateString('es-ES', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}\n\n`;
+      
+      report += `${'-'.repeat(70)}\n`;
+      report += `  INFORMACIÓN DEL PACIENTE\n`;
+      report += `${'-'.repeat(70)}\n`;
+      report += `  Nombre:                           ${patient.patient_name}\n`;
+      report += `  Edad:                             ${age} años\n`;
+      report += `  Género:                           ${patient.gender}\n`;
+      report += `  Email:                            ${patient.email}\n`;
+      report += `  Teléfono:                         ${patient.phone}\n`;
+      if (patient.address) {
+        report += `  Dirección:                        ${patient.address}\n`;
+      }
+      if (patient.emergency_contact) {
+        report += `  Contacto de emergencia:           ${patient.emergency_contact}\n`;
+        report += `  Teléfono de emergencia:           ${patient.emergency_phone}\n`;
+      }
+      report += `\n`;
+      
+      if (patient.clinical_notes) {
+        report += `${'-'.repeat(70)}\n`;
+        report += `  NOTAS CLÍNICAS\n`;
+        report += `${'-'.repeat(70)}\n`;
+        report += `${patient.clinical_notes}\n\n`;
+      }
+      
+      report += `${'-'.repeat(70)}\n`;
+      report += `  RESUMEN DE TRATAMIENTO\n`;
+      report += `${'-'.repeat(70)}\n`;
+      report += `  Total de sesiones:                ${sessions.length}\n`;
+      report += `  Horas de terapia:                 ${totalHours.toFixed(1)} horas\n`;
+      report += `  Ánimo promedio:                   ${avgMood}/10\n`;
+      report += `  Progreso promedio:                ${avgProgress}/10\n`;
+      
+      if (sessions.length > 0) {
+        const firstSession = sessions.reduce((a, b) => new Date(a.date) < new Date(b.date) ? a : b);
+        const lastSession = sessions.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+        report += `  Primera sesión:                   ${new Date(firstSession.date).toLocaleDateString('es-ES')}\n`;
+        report += `  Última sesión:                    ${new Date(lastSession.date).toLocaleDateString('es-ES')}\n`;
+      }
+      report += `\n`;
+      
+      if (Object.keys(sessionTypes).length > 0) {
+        report += `${'-'.repeat(70)}\n`;
+        report += `  TIPOS DE SESIÓN\n`;
+        report += `${'-'.repeat(70)}\n`;
+        Object.entries(sessionTypes).forEach(([type, count]) => {
+          const percent = ((count / sessions.length) * 100).toFixed(1);
+          report += `  ${(typeLabels[type] || type).padEnd(20)} ${count} sesiones (${percent}%)\n`;
+        });
+        report += `\n`;
+      }
+      
+      if (sessions.length > 0) {
+        report += `${'-'.repeat(70)}\n`;
+        report += `  HISTORIAL DE SESIONES\n`;
+        report += `${'-'.repeat(70)}\n\n`;
+        
+        sessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        sessions.forEach((session, index) => {
+          const dateObj = new Date(session.date);
+          report += `[${index + 1}] ${dateObj.toLocaleDateString('es-ES')} - ${session.time}\n`;
+          report += `    Tipo: ${typeLabels[session.session_type] || session.session_type}\n`;
+          report += `    Duración: ${session.duration} minutos\n`;
+          report += `    Ánimo: ${session.mood_rating}/10 | Progreso: ${session.progress_rating}/10\n`;
+          report += `    Notas: ${session.notes}\n\n`;
+        });
+      }
+      
+      report += `${'-'.repeat(70)}\n`;
+      report += `  EVOLUCIÓN DEL PROGRESO\n`;
+      report += `${'-'.repeat(70)}\n`;
+      if (sessions.length >= 2) {
+        const recentSessions = sessions.slice(0, 5);
+        const oldSessions = sessions.slice(-5);
+        
+        const recentAvgProgress = (recentSessions.reduce((sum, s) => sum + s.progress_rating, 0) / recentSessions.length).toFixed(1);
+        const oldAvgProgress = (oldSessions.reduce((sum, s) => sum + s.progress_rating, 0) / oldSessions.length).toFixed(1);
+        
+        const progressChange = (recentAvgProgress - oldAvgProgress).toFixed(1);
+        const trend = progressChange > 0 ? '↑ MEJORANDO' : progressChange < 0 ? '↓ DISMINUYENDO' : '→ ESTABLE';
+        
+        report += `  Últimas 5 sesiones (progreso):   ${recentAvgProgress}/10\n`;
+        report += `  Primeras 5 sesiones (progreso):  ${oldAvgProgress}/10\n`;
+        report += `  Cambio:                           ${progressChange > 0 ? '+' : ''}${progressChange} puntos\n`;
+        report += `  Tendencia:                        ${trend}\n`;
+      } else {
+        report += `  Datos insuficientes para calcular tendencia.\n`;
+        report += `  Se requieren al menos 2 sesiones.\n`;
+      }
+      report += `\n`;
+      
+      report += `${'='.repeat(70)}\n`;
+      report += `  FIN DEL REPORTE\n`;
+      report += `${'='.repeat(70)}\n`;
+      
+      return report;
+    }
+
+    function renderPatientReport(patient) {
+      if (!patient) {
+        document.getElementById('patient-report-container').classList.add('hidden');
+        document.getElementById('report-empty-state').classList.remove('hidden');
+        return;
+      }
+
+      const appointments = allData.filter(d => 
+        d.type === 'appointment' && 
+        d.patient_name.toLowerCase() === patient.patient_name.toLowerCase()
+      );
+      const sessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+      
+      document.getElementById('report-empty-state').classList.add('hidden');
+      document.getElementById('patient-report-container').classList.remove('hidden');
+      
+      const age = calculateAge(patient.birth_date);
+      const totalHours = sessions.reduce((sum, s) => sum + (s.duration || 60), 0) / 60;
+      const avgMood = sessions.length > 0 
+        ? (sessions.reduce((sum, s) => sum + s.mood_rating, 0) / sessions.length).toFixed(1) 
+        : 0;
+      const avgProgress = sessions.length > 0 
+        ? (sessions.reduce((sum, s) => sum + s.progress_rating, 0) / sessions.length).toFixed(1) 
+        : 0;
+      
+      document.getElementById('report-patient-name').textContent = patient.patient_name;
+      document.getElementById('report-patient-info').textContent = `${age} años • ${patient.gender} • ${patient.email}`;
+      
+      document.getElementById('report-total-sessions').textContent = sessions.length;
+      document.getElementById('report-avg-mood').textContent = avgMood;
+      document.getElementById('report-avg-progress').textContent = avgProgress;
+      document.getElementById('report-total-hours').textContent = totalHours.toFixed(1) + 'h';
+      
+      const chartContainer = document.getElementById('progress-chart');
+      if (sessions.length === 0) {
+        chartContainer.innerHTML = '<p class="text-center py-8 opacity-60">No hay datos de progreso</p>';
+      } else {
+        const sortedSessions = [...sessions].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        chartContainer.innerHTML = sortedSessions.map((session, index) => {
+          const dateStr = new Date(session.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+          const progressPercent = session.progress_rating * 10;
+          const moodPercent = session.mood_rating * 10;
+          
+          return `
+            <div class="mb-3">
+              <div class="flex justify-between items-center mb-1 text-sm">
+                <span class="font-medium">${dateStr}</span>
+                <div class="flex gap-3 text-xs">
+                  <span>😊 ${session.mood_rating}/10</span>
+                  <span>📈 ${session.progress_rating}/10</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <div class="flex-1">
+                  <div class="w-full rounded-full h-2" style="background: rgba(245, 158, 11, 0.2);">
+                    <div class="h-2 rounded-full transition-all" style="width: ${moodPercent}%; background: #f59e0b;"></div>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="w-full rounded-full h-2" style="background: rgba(139, 92, 246, 0.2);">
+                    <div class="h-2 rounded-full transition-all" style="width: ${progressPercent}%; background: #8b5cf6;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      const sessionTypes = {};
+      sessions.forEach(s => {
+        if (s.session_type) {
+          sessionTypes[s.session_type] = (sessionTypes[s.session_type] || 0) + 1;
+        }
+      });
+      
+      const typesContainer = document.getElementById('report-session-types');
+      const typeEntries = Object.entries(sessionTypes);
+      
+      if (typeEntries.length === 0) {
+        typesContainer.innerHTML = '<p class="text-center py-4 opacity-60">No hay datos disponibles</p>';
+      } else {
+        const total = typeEntries.reduce((sum, [, count]) => sum + count, 0);
+        const typeLabels = {
+          individual: 'Individual',
+          pareja: 'Pareja',
+          familiar: 'Familiar',
+          grupal: 'Grupal'
+        };
+        
+        typesContainer.innerHTML = typeEntries.map(([type, count]) => {
+          const percent = Math.round((count / total) * 100);
+          
+          return `
+            <div class="mb-3">
+              <div class="flex justify-between mb-1">
+                <span>${typeLabels[type] || type}</span>
+                <span class="font-bold">${count} (${percent}%)</span>
+              </div>
+              <div class="w-full rounded-full h-2" style="background: rgba(0,0,0,0.1);">
+                <div class="h-2 rounded-full" style="width: ${percent}%; background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color};"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      const historyContainer = document.getElementById('report-session-history');
+      if (sessions.length === 0) {
+        historyContainer.innerHTML = '<p class="text-center py-8 opacity-60">No hay sesiones registradas</p>';
+      } else {
+        const sortedSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        historyContainer.innerHTML = sortedSessions.map(session => `
+          <div class="p-4 rounded-lg border" style="border-color: rgba(0,0,0,0.1);">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold">${new Date(session.date).toLocaleDateString('es-ES')} - ${session.time}</span>
+              <span class="px-3 py-1 rounded text-sm" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+                ${session.session_type}
+              </span>
+            </div>
+            <div class="flex gap-4 text-sm mb-2">
+              <span>😊 Ánimo: <strong>${session.mood_rating}/10</strong></span>
+              <span>📈 Progreso: <strong>${session.progress_rating}/10</strong></span>
+              <span>⏱️ ${session.duration} min</span>
+            </div>
+            <div class="text-sm p-2 rounded" style="background: rgba(0,0,0,0.03);">
+              ${session.notes}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderReportsSelector() {
+      const patients = allData.filter(d => d.type === 'patient');
+      const select = document.getElementById('report-patient-select');
+      
+      select.innerHTML = '<option value="">Selecciona un paciente para generar su reporte...</option>';
+      
+      if (patients.length === 0) {
+        document.getElementById('report-empty-state').classList.remove('hidden');
+        document.getElementById('patient-report-container').classList.add('hidden');
+        return;
+      }
+      
+      patients.forEach(patient => {
+        const appointments = allData.filter(d => 
+          d.type === 'appointment' && 
+          d.patient_name.toLowerCase() === patient.patient_name.toLowerCase()
+        );
+        const sessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+        
+        const option = document.createElement('option');
+        option.value = patient.__backendId;
+        option.textContent = `${patient.patient_name} (${sessions.length} sesiones)`;
+        select.appendChild(option);
+      });
+      
+      if (selectedReportPatient) {
+        select.value = selectedReportPatient.__backendId;
+        renderPatientReport(selectedReportPatient);
+      } else {
+        document.getElementById('report-empty-state').classList.remove('hidden');
+        document.getElementById('patient-report-container').classList.add('hidden');
+      }
+    }
+
+    function showAppointmentForm() {
+      if (allData.length >= 999) {
+        showToast('Límite de 999 registros alcanzado. Por favor elimina algunos registros primero.', 'error');
+        return;
+      }
+
+      const patients = allData.filter(d => d.type === 'patient');
+      const hasPatients = patients.length > 0;
+
+      const content = `
+        <form id="appointment-form">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Paciente</label>
+            ${hasPatients ? `
+              <select id="patient-select" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+                <option value="">Seleccionar paciente existente...</option>
+                ${patients.map(p => `<option value="${p.patient_name}">${p.patient_name}</option>`).join('')}
+                <option value="__new__">+ Agregar nuevo paciente</option>
+              </select>
+              <input type="text" id="patient-name" placeholder="O escribe el nombre aquí" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            ` : `
+              <input type="text" id="patient-name" required placeholder="Nombre del paciente" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+              <p style="font-size: 12px; margin-top: 4px; opacity: 0.6;">💡 Sugerencia: Registra primero al paciente en la sección "Pacientes"</p>
+            `}
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Fecha</label>
+              <input type="date" id="date" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Hora</label>
+              <input type="time" id="time" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Duración (minutos)</label>
+            <input type="number" id="duration" value="60" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Notas</label>
+            <textarea id="notes" rows="3" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;"></textarea>
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" id="cancel-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+              Cancelar
+            </button>
+            <button type="submit" id="save-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+              Guardar Cita
+            </button>
+          </div>
+        </form>
+      `;
+
+      const modal = showModal('Nueva Cita', content);
+
+      if (hasPatients) {
+        const patientSelect = document.getElementById('patient-select');
+        const patientNameInput = document.getElementById('patient-name');
+
+        patientSelect.onchange = () => {
+          if (patientSelect.value === '__new__') {
+            modal.remove();
+            showPatientForm();
+          } else if (patientSelect.value) {
+            patientNameInput.value = patientSelect.value;
+            patientNameInput.required = false;
+          } else {
+            patientNameInput.value = '';
+            patientNameInput.required = false;
+          }
+        };
+      }
+
+      document.getElementById('cancel-btn').onclick = () => modal.remove();
+      
+      document.getElementById('appointment-form').onsubmit = (e) => {
+        e.preventDefault();
+        
+        const patientName = hasPatients 
+          ? (document.getElementById('patient-name').value || document.getElementById('patient-select').value)
+          : document.getElementById('patient-name').value;
+
+        if (!patientName || patientName === '__new__') {
+          showToast('Por favor selecciona o escribe el nombre del paciente', 'error');
+          return;
+        }
+
+        if (isLoading) return;
+        isLoading = true;
+        
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.textContent = 'Guardando...';
+        saveBtn.disabled = true;
+
+        allData.push({
+          type: 'appointment',
+          __backendId: 'appointment_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          patient_name: patientName,
+          date: document.getElementById('date').value,
+          time: document.getElementById('time').value,
+          duration: parseInt(document.getElementById('duration').value),
+          status: 'pending',
+          notes: document.getElementById('notes').value,
+          mood_rating: 0,
+          progress_rating: 0,
+          session_type: '',
+          created_at: new Date().toISOString(),
+          evaluated: false,
+          email: '',
+          phone: '',
+          birth_date: '',
+          gender: '',
+          address: '',
+          emergency_contact: '',
+          emergency_phone: '',
+          clinical_notes: ''
+        });
+
+        isLoading = false;
+        updateAllViews();
+        showToast('Cita creada exitosamente');
+        modal.remove();
+      };
+    }
+
+    function showEvaluationForm(appointment) {
+      const isEdit = appointment.evaluated;
+      
+      const content = `
+        <form id="evaluation-form">
+          <div style="margin-bottom: 16px; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.03);">
+            <p style="font-weight: bold; font-size: ${(window.elementSdk?.config?.font_size || defaultConfig.font_size) * 1.2}px; margin-bottom: 4px;">${appointment.patient_name}</p>
+            <p style="opacity: 0.75; font-size: ${(window.elementSdk?.config?.font_size || defaultConfig.font_size) * 0.875}px;">📅 ${new Date(appointment.date).toLocaleDateString('es-ES')} a las ${appointment.time} • ⏱️ ${appointment.duration} minutos</p>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Tipo de Sesión *</label>
+            <select id="session-type" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+              <option value="">Seleccionar...</option>
+              <option value="individual" ${appointment.session_type === 'individual' ? 'selected' : ''}>Individual</option>
+              <option value="pareja" ${appointment.session_type === 'pareja' ? 'selected' : ''}>Pareja</option>
+              <option value="familiar" ${appointment.session_type === 'familiar' ? 'selected' : ''}>Familiar</option>
+              <option value="grupal" ${appointment.session_type === 'grupal' ? 'selected' : ''}>Grupal</option>
+            </select>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">😊 Estado de ánimo (1-10) *</label>
+              <input type="number" id="mood-rating" min="1" max="10" value="${appointment.mood_rating || 5}" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+              <p style="font-size: 11px; margin-top: 4px; opacity: 0.6;">1 = Muy mal, 10 = Excelente</p>
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">📈 Progreso (1-10) *</label>
+              <input type="number" id="progress-rating" min="1" max="10" value="${appointment.progress_rating || 5}" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
+              <p style="font-size: 11px; margin-top: 4px; opacity: 0.6;">1 = Sin progreso, 10 = Excelente</p>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Notas de la Sesión *</label>
+            <textarea id="session-notes" rows="5" required placeholder="Observaciones, temas tratados, tareas asignadas..." style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px; resize: vertical;">${appointment.notes || ''}</textarea>
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" id="cancel-eval-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+              Cancelar
+            </button>
+            <button type="submit" id="save-eval-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+              ${isEdit ? '✓ Actualizar' : '✓ Guardar'} Evaluación
+            </button>
+          </div>
+        </form>
+      `;
+
+      const modal = showModal(isEdit ? 'Editar Evaluación' : 'Evaluar Sesión', content);
+
+      document.getElementById('cancel-eval-btn').onclick = () => modal.remove();
+      
+      document.getElementById('evaluation-form').onsubmit = (e) => {
+        e.preventDefault();
+        
+        if (isLoading) return;
+        isLoading = true;
+        
+        const saveBtn = document.getElementById('save-eval-btn');
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = isEdit ? 'Actualizando...' : 'Guardando...';
+        saveBtn.disabled = true;
+
+        appointment.session_type = document.getElementById('session-type').value;
+        appointment.mood_rating = parseInt(document.getElementById('mood-rating').value);
+        appointment.progress_rating = parseInt(document.getElementById('progress-rating').value);
+        appointment.notes = document.getElementById('session-notes').value;
+        appointment.evaluated = true;
+
+        const index = allData.findIndex(d => d.__backendId === appointment.__backendId);
+        if (index !== -1) {
+          allData[index] = appointment;
+        }
+
+        isLoading = false;
+        updateAllViews();
+        showToast(isEdit ? 'Evaluación actualizada exitosamente' : 'Sesión evaluada exitosamente');
+        modal.remove();
+      };
+    }
+
+    function renderCalendar() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+      
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      
+      document.getElementById('calendar-month-year').textContent = `${monthNames[month]} ${year}`;
+      
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      const appointments = allData.filter(d => d.type === 'appointment');
+      const appointmentsByDate = {};
+      
+      appointments.forEach(apt => {
+        const date = apt.date;
+        if (!appointmentsByDate[date]) {
+          appointmentsByDate[date] = [];
+        }
+        appointmentsByDate[date].push(apt);
+      });
+      
+      const calendarDays = document.getElementById('calendar-days');
+      calendarDays.innerHTML = '';
+      
+      for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'aspect-square';
+        calendarDays.appendChild(emptyDay);
+      }
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayAppointments = appointmentsByDate[dateStr] || [];
+        const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'aspect-square border rounded-lg p-2 cursor-pointer hover:shadow-md transition-shadow';
+        dayDiv.style.background = window.elementSdk?.config?.surface_color || defaultConfig.surface_color;
+        dayDiv.style.borderColor = isToday ? (window.elementSdk?.config?.primary_color || defaultConfig.primary_color) : 'rgba(0,0,0,0.1)';
+        dayDiv.style.borderWidth = isToday ? '2px' : '1px';
+        
+        let content = `<div class="font-bold text-sm mb-1">${day}</div>`;
+        
+        if (dayAppointments.length > 0) {
+          content += `<div class="space-y-1">`;
+          dayAppointments.slice(0, 2).forEach(apt => {
+            const bgColor = apt.status === 'pending' ? '#fbbf24' : apt.evaluated ? '#10b981' : '#ef4444';
+            content += `
+              <div class="text-xs px-1 py-0.5 rounded truncate" style="background: ${bgColor}; color: #ffffff;">
+                ${apt.time} ${apt.patient_name}
+              </div>
+            `;
+          });
+          if (dayAppointments.length > 2) {
+            content += `<div class="text-xs opacity-75">+${dayAppointments.length - 2} más</div>`;
+          }
+          content += `</div>`;
+        }
+        
+        dayDiv.innerHTML = content;
+        
+        if (dayAppointments.length > 0) {
+          dayDiv.onclick = () => showDayAppointments(dateStr, dayAppointments);
+        }
+        
+        calendarDays.appendChild(dayDiv);
+      }
+    }
+
+    function showDayAppointments(dateStr, appointments) {
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      const formattedDate = dateObj.toLocaleDateString('es-ES', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      const content = `
+        <div style="max-height: 60vh; overflow-y: auto;">
+          <p class="mb-4 opacity-75">${appointments.length} cita(s) programada(s)</p>
+          <div class="space-y-3">
+            ${appointments.map(apt => `
+              <div class="p-4 rounded-lg border" style="border-color: rgba(0,0,0,0.1);">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-bold">${apt.patient_name}</span>
+                  <span class="px-2 py-1 rounded-full text-xs" style="background: ${apt.status === 'pending' ? '#fbbf24' : apt.evaluated ? '#10b981' : '#ef4444'}; color: #ffffff;">
+                    ${apt.status === 'pending' ? 'Pendiente' : apt.evaluated ? 'Evaluada' : 'Sin evaluar'}
+                  </span>
+                </div>
+                <div class="text-sm opacity-75 mb-1">⏰ ${apt.time} - ${apt.duration} minutos</div>
+                ${apt.notes ? `<div class="text-sm mt-2">${apt.notes}</div>` : ''}
+                <div class="flex gap-2 mt-3">
+                  ${apt.status === 'pending' ? `
+                    <button class="modal-complete-btn px-3 py-2 rounded text-sm" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;" data-id="${apt.__backendId}">
+                      ✓ Completar
+                    </button>
+                  ` : ''}
+                  <button class="modal-delete-btn px-3 py-2 rounded text-sm" style="background: #ef4444; color: #ffffff;" data-id="${apt.__backendId}">
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      const modal = showModal(`Citas del ${formattedDate}`, content);
+      
+      modal.querySelectorAll('.modal-complete-btn').forEach(btn => {
+        btn.onclick = () => {
+          if (isLoading) return;
+          
+          const apt = allData.find(d => d.__backendId === btn.dataset.id);
+          if (!apt) return;
+          
+          isLoading = true;
+          const originalText = btn.textContent;
+          btn.textContent = 'Completando...';
+          btn.disabled = true;
+          
+          const index = allData.findIndex(d => d.__backendId === apt.__backendId);
+          if (index !== -1) {
+            allData[index].status = 'completed';
+          }
+          
+          isLoading = false;
+          updateAllViews();
+          showToast('Cita completada');
+          modal.remove();
+        };
+      });
+      
+      modal.querySelectorAll('.modal-delete-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const apt = allData.find(d => d.__backendId === btn.dataset.id);
+          if (apt && !isLoading) {
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'mt-2 p-2 rounded';
+            confirmDiv.style.background = '#fee';
+            confirmDiv.innerHTML = `
+              <p class="text-sm mb-2">¿Eliminar esta cita?</p>
+              <button class="confirm-delete px-3 py-1 rounded text-sm mr-2" style="background: #ef4444; color: #fff;">Sí, eliminar</button>
+              <button class="cancel-delete px-3 py-1 rounded text-sm" style="background: #64748b; color: #fff;">Cancelar</button>
+            `;
+            btn.parentElement.parentElement.appendChild(confirmDiv);
+
+            confirmDiv.querySelector('.cancel-delete').onclick = () => confirmDiv.remove();
+            confirmDiv.querySelector('.confirm-delete').onclick = () => {
+              isLoading = true;
+              confirmDiv.querySelector('.confirm-delete').textContent = 'Eliminando...';
+              confirmDiv.querySelector('.confirm-delete').disabled = true;
+              
+              const index = allData.findIndex(d => d.__backendId === apt.__backendId);
+              if (index !== -1) {
+                allData.splice(index, 1);
+              }
+              
+              isLoading = false;
+              updateAllViews();
+              showToast('Cita eliminada');
+              modal.remove();
+            };
+          }
+        };
+      });
+    }
+
+    function renderAppointmentsList() {
+      const container = document.getElementById('appointments-list');
+      const appointments = allData.filter(d => d.type === 'appointment');
+      
+      if (appointments.length === 0) {
+        container.innerHTML = '<p class="text-center py-8 opacity-60">No hay citas programadas</p>';
+        return;
+      }
+
+      appointments.sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      container.innerHTML = appointments.map(apt => `
+        <div class="p-4 rounded-lg shadow-sm border" style="background: ${window.elementSdk?.config?.surface_color || defaultConfig.surface_color}; border-color: rgba(0,0,0,0.1);">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <span class="font-bold text-lg" style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color};">${apt.patient_name}</span>
+                <span class="px-3 py-1 rounded-full text-sm" style="background: ${apt.status === 'pending' ? '#fbbf24' : apt.evaluated ? '#10b981' : '#ef4444'}; color: #ffffff;">
+                  ${apt.status === 'pending' ? 'Pendiente' : apt.evaluated ? 'Evaluada' : 'Sin evaluar'}
+                </span>
+              </div>
+              <div class="text-sm opacity-75 mb-1">📅 ${new Date(apt.date).toLocaleDateString('es-ES')} a las ${apt.time}</div>
+              <div class="text-sm opacity-75 mb-1">⏱️ ${apt.duration} minutos</div>
+              ${apt.notes ? `<div class="text-sm mt-2">${apt.notes}</div>` : ''}
+            </div>
+            <div class="flex gap-2">
+              ${apt.status === 'pending' ? `
+                <button class="complete-btn px-4 py-2 rounded-lg text-sm font-medium" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;" data-id="${apt.__backendId}">
+                  ✓ Completar
+                </button>
+              ` : ''}
+              <button class="delete-apt-btn px-4 py-2 rounded-lg text-sm font-medium" style="background: #ef4444; color: #ffffff;" data-id="${apt.__backendId}">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.complete-btn').forEach(btn => {
+        btn.onclick = () => {
+          if (isLoading) return;
+          
+          const apt = allData.find(d => d.__backendId === btn.dataset.id);
+          if (!apt) return;
+          
+          isLoading = true;
+          const originalText = btn.textContent;
+          btn.textContent = 'Completando...';
+          btn.disabled = true;
+          
+          const index = allData.findIndex(d => d.__backendId === apt.__backendId);
+          if (index !== -1) {
+            allData[index].status = 'completed';
+          }
+          
+          isLoading = false;
+          updateAllViews();
+          showToast('Cita completada');
+        };
+      });
+
+      document.querySelectorAll('.delete-apt-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const apt = allData.find(d => d.__backendId === btn.dataset.id);
+          if (apt && !isLoading) {
+            const parent = btn.closest('div.p-4');
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'mt-2 p-2 rounded';
+            confirmDiv.style.background = '#fee';
+            confirmDiv.innerHTML = `
+              <p class="text-sm mb-2">¿Eliminar esta cita?</p>
+              <button class="confirm-delete px-3 py-1 rounded text-sm mr-2" style="background: #ef4444; color: #fff;">Sí, eliminar</button>
+              <button class="cancel-delete px-3 py-1 rounded text-sm" style="background: #64748b; color: #fff;">Cancelar</button>
+            `;
+            parent.appendChild(confirmDiv);
+
+            confirmDiv.querySelector('.cancel-delete').onclick = () => confirmDiv.remove();
+            confirmDiv.querySelector('.confirm-delete').onclick = () => {
+              isLoading = true;
+              confirmDiv.querySelector('.confirm-delete').textContent = 'Eliminando...';
+              confirmDiv.querySelector('.confirm-delete').disabled = true;
+              
+              const index = allData.findIndex(d => d.__backendId === apt.__backendId);
+              if (index !== -1) {
+                allData.splice(index, 1);
+              }
+              
+              isLoading = false;
+              updateAllViews();
+              showToast('Cita eliminada');
+            };
+          }
+        };
+      });
+    }
+    
+    function toggleAppointmentView(view) {
+      appointmentView = view;
+      
+      if (view === 'calendar') {
+        document.getElementById('calendar-view').classList.remove('hidden');
+        document.getElementById('list-view').classList.add('hidden');
+        document.getElementById('btn-view-calendar').style.background = window.elementSdk?.config?.primary_color || defaultConfig.primary_color;
+        document.getElementById('btn-view-list').style.background = window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color;
+        renderCalendar();
+      } else {
+        document.getElementById('calendar-view').classList.add('hidden');
+        document.getElementById('list-view').classList.remove('hidden');
+        document.getElementById('btn-view-calendar').style.background = window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color;
+        document.getElementById('btn-view-list').style.background = window.elementSdk?.config?.primary_color || defaultConfig.primary_color;
+        renderAppointmentsList();
+      }
+    }
+
+    function renderSessions() {
+      const appointments = allData.filter(d => d.type === 'appointment');
+      
+      const pendingEvals = appointments.filter(a => a.status === 'completed' && !a.evaluated);
+      const evaluatedSessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+      
+      const pendingContainer = document.getElementById('pending-evaluations-list');
+      const evaluatedContainer = document.getElementById('evaluated-sessions-list');
+      
+      if (pendingEvals.length === 0) {
+        pendingContainer.innerHTML = '<p class="text-center py-8 opacity-60">No hay citas pendientes de evaluar</p>';
+      } else {
+        pendingEvals.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        pendingContainer.innerHTML = pendingEvals.map(apt => `
+          <div class="p-4 rounded-lg shadow-sm border" style="background: ${window.elementSdk?.config?.surface_color || defaultConfig.surface_color}; border-color: rgba(0,0,0,0.1);">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-bold text-lg" style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color};">${apt.patient_name}</span>
+                  <span class="px-3 py-1 rounded-full text-sm" style="background: #ef4444; color: #ffffff;">
+                    Sin evaluar
+                  </span>
+                </div>
+                <div class="text-sm opacity-75 mb-1">📅 ${new Date(apt.date).toLocaleDateString('es-ES')} a las ${apt.time}</div>
+                <div class="text-sm opacity-75 mb-1">⏱️ ${apt.duration} minutos</div>
+                ${apt.notes ? `<div class="text-sm mt-2 opacity-75">${apt.notes}</div>` : ''}
+              </div>
+              <button class="evaluate-btn px-4 py-2 rounded-lg text-sm font-medium" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;" data-id="${apt.__backendId}">
+                📝 Evaluar
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        document.querySelectorAll('.evaluate-btn').forEach(btn => {
+          btn.onclick = () => {
+            const apt = allData.find(d => d.__backendId === btn.dataset.id);
+            if (apt) showEvaluationForm(apt);
+          };
+        });
+      }
+      
+      if (evaluatedSessions.length === 0) {
+        evaluatedContainer.innerHTML = '<p class="text-center py-8 opacity-60">No hay sesiones evaluadas</p>';
+      } else {
+        evaluatedSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        evaluatedContainer.innerHTML = evaluatedSessions.map(session => `
+          <div class="p-4 rounded-lg shadow-sm border" style="background: ${window.elementSdk?.config?.surface_color || defaultConfig.surface_color}; border-color: rgba(0,0,0,0.1);">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-bold text-lg" style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color};">${session.patient_name}</span>
+                  <span class="px-3 py-1 rounded-full text-sm" style="background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color}; color: #ffffff;">
+                    ${session.session_type}
+                  </span>
+                </div>
+                <div class="text-sm opacity-75 mb-2">📅 ${new Date(session.date).toLocaleDateString('es-ES')} a las ${session.time}</div>
+                <div class="flex gap-4 mb-2 text-sm">
+                  <div>😊 Ánimo: <strong>${session.mood_rating}/10</strong></div>
+                  <div>📈 Progreso: <strong>${session.progress_rating}/10</strong></div>
+                </div>
+                ${session.notes ? `<div class="text-sm mt-2 p-2 rounded" style="background: rgba(0,0,0,0.03);">${session.notes}</div>` : ''}
+              </div>
+              <div class="flex flex-col gap-2">
+                <button class="edit-session-btn px-3 py-2 rounded-lg text-sm font-medium" style="background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;" data-id="${session.__backendId}">
+                  ✏️ Editar
+                </button>
+                <button class="delete-session-btn px-3 py-2 rounded-lg text-sm font-medium" style="background: #ef4444; color: #ffffff;" data-id="${session.__backendId}">
+                  🗑️ Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        document.querySelectorAll('.edit-session-btn').forEach(btn => {
+          btn.onclick = () => {
+            const session = allData.find(d => d.__backendId === btn.dataset.id);
+            if (session) showEvaluationForm(session);
+          };
+        });
+
+        document.querySelectorAll('.delete-session-btn').forEach(btn => {
+          btn.onclick = async () => {
+            const session = allData.find(d => d.__backendId === btn.dataset.id);
+            if (session && !isLoading) {
+              const parent = btn.closest('div.p-4');
+              const confirmDiv = document.createElement('div');
+              confirmDiv.className = 'mt-2 p-2 rounded';
+              confirmDiv.style.background = '#fee';
+              confirmDiv.innerHTML = `
+                <p class="text-sm mb-2">⚠️ ¿Eliminar esta sesión? Esta acción no se puede deshacer.</p>
+                <button class="confirm-delete px-3 py-1 rounded text-sm mr-2" style="background: #ef4444; color: #fff;">Sí, eliminar</button>
+                <button class="cancel-delete px-3 py-1 rounded text-sm" style="background: #64748b; color: #fff;">Cancelar</button>
+              `;
+              parent.appendChild(confirmDiv);
+
+              confirmDiv.querySelector('.cancel-delete').onclick = () => confirmDiv.remove();
+              confirmDiv.querySelector('.confirm-delete').onclick = () => {
+                isLoading = true;
+                confirmDiv.querySelector('.confirm-delete').textContent = 'Eliminando...';
+                confirmDiv.querySelector('.confirm-delete').disabled = true;
+                
+                const index = allData.findIndex(d => d.__backendId === session.__backendId);
+                if (index !== -1) {
+                  allData.splice(index, 1);
+                }
+                
+                isLoading = false;
+                updateAllViews();
+                showToast('Sesión eliminada');
+              };
+            }
+          };
+        });
+      }
+    }
+
+    function renderDashboard() {
+      const allAppointments = allData.filter(d => d.type === 'appointment');
+      const evaluatedSessions = allAppointments.filter(a => a.status === 'completed' && a.evaluated);
+      
+      const allPatients = allData.filter(d => d.type === 'patient');
+      const uniquePatients = allPatients.length;
+      
+      const pendingAppointments = allAppointments.filter(a => a.status === 'pending').length;
+      
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const sessionsThisMonth = evaluatedSessions.filter(s => {
+        const date = new Date(s.date);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      }).length;
+      
+      const avgProgress = evaluatedSessions.length > 0
+        ? Math.round(evaluatedSessions.reduce((sum, s) => sum + (s.progress_rating || 0), 0) / evaluatedSessions.length * 10)
+        : 0;
+
+      document.getElementById('stat-total-patients').textContent = uniquePatients;
+      document.getElementById('stat-pending-appointments').textContent = pendingAppointments;
+      document.getElementById('stat-sessions-month').textContent = sessionsThisMonth;
+      document.getElementById('stat-avg-progress').textContent = avgProgress + '%';
+
+      const patientProgress = {};
+      evaluatedSessions.forEach(s => {
+        const patientKey = s.patient_name.trim();
+        if (!patientProgress[patientKey]) {
+          patientProgress[patientKey] = { 
+            progressRatings: [], 
+            moodRatings: [],
+            lastSession: s.date 
+          };
+        }
+        patientProgress[patientKey].progressRatings.push(s.progress_rating || 0);
+        patientProgress[patientKey].moodRatings.push(s.mood_rating || 0);
+        if (new Date(s.date) > new Date(patientProgress[patientKey].lastSession)) {
+          patientProgress[patientKey].lastSession = s.date;
+        }
+      });
+
+      const progressList = document.getElementById('patient-progress-list');
+      const patientEntries = Object.entries(patientProgress);
+      
+      if (patientEntries.length === 0) {
+        progressList.innerHTML = '<p class="text-center py-8 opacity-60">No hay datos de pacientes evaluados aún</p>';
+        return;
+      }
+
+      progressList.innerHTML = patientEntries.map(([name, data]) => {
+        const avgProgress = Math.round(data.progressRatings.reduce((a, b) => a + b, 0) / data.progressRatings.length);
+        const avgMood = Math.round(data.moodRatings.reduce((a, b) => a + b, 0) / data.moodRatings.length);
+        const progressPercent = avgProgress * 10;
+        
+        return `
+          <div class="p-4 rounded-lg shadow-sm" style="background: ${window.elementSdk?.config?.surface_color || defaultConfig.surface_color};">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold" style="color: ${window.elementSdk?.config?.text_color || defaultConfig.text_color};">${name}</span>
+              <span class="text-sm opacity-75">${data.progressRatings.length} sesiones</span>
+            </div>
+            <div class="w-full rounded-full h-3 mb-2" style="background: rgba(0,0,0,0.1);">
+              <div class="h-3 rounded-full transition-all" style="width: ${progressPercent}%; background: ${window.elementSdk?.config?.primary_color || defaultConfig.primary_color};"></div>
+            </div>
+            <div class="flex justify-between text-sm opacity-75">
+              <span>Progreso: ${avgProgress}/10</span>
+              <span>Ánimo: ${avgMood}/10</span>
+              <span>Última: ${new Date(data.lastSession).toLocaleDateString('es-ES')}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onConfigChange(config) {
+      const baseFont = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'system-ui, -apple-system, sans-serif';
+      const fontSize = config.font_size || defaultConfig.font_size;
+
+      document.body.style.background = config.background_color || defaultConfig.background_color;
+      document.body.style.fontFamily = `${baseFont}, ${baseFontStack}`;
+      document.body.style.fontSize = `${fontSize}px`;
+      document.body.style.color = config.text_color || defaultConfig.text_color;
+
+      const header = document.getElementById('header');
+      header.style.background = config.surface_color || defaultConfig.surface_color;
+      header.style.color = config.text_color || defaultConfig.text_color;
+
+      document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+      document.getElementById('app-title').style.fontSize = `${fontSize * 2}px`;
+      document.getElementById('clinic-name').textContent = config.clinic_name || defaultConfig.clinic_name;
+      document.getElementById('clinic-name').style.fontSize = `${fontSize * 0.875}px`;
+
+      document.getElementById('btn-new-appointment').textContent = '➕ ' + (config.add_appointment_text || defaultConfig.add_appointment_text);
+      document.getElementById('btn-new-patient').textContent = '➕ ' + (config.add_patient_text || defaultConfig.add_patient_text);
+
+      document.querySelectorAll('.stat-card').forEach(card => {
+        card.style.background = config.surface_color || defaultConfig.surface_color;
+        card.style.color = config.text_color || defaultConfig.text_color;
+      });
+
+      const primaryButtons = document.querySelectorAll('#btn-new-appointment, #btn-new-patient');
+      primaryButtons.forEach(btn => {
+        btn.style.background = config.primary_color || defaultConfig.primary_color;
+        btn.style.color = '#ffffff';
+      });
+
+      switchView(currentView);
+
+      if (appointmentView === 'calendar') {
+        renderCalendar();
+      } else {
+        renderAppointmentsList();
+      }
+      renderSessions();
+      renderDashboard();
+      renderReportsSelector();
+      renderPatients(document.getElementById('patient-search')?.value || '');
+    }
+
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem('psychologyApp_data', JSON.stringify(allData));
+        localStorage.setItem('psychologyApp_timestamp', new Date().toISOString());
+      } catch (e) {
+        console.error('Error saving to localStorage:', e);
+      }
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const savedData = localStorage.getItem('psychologyApp_data');
+        if (savedData) {
+          allData = JSON.parse(savedData);
+          
+          if (appointmentView === 'calendar') {
+            renderCalendar();
+          } else {
+            renderAppointmentsList();
+          }
+          
+          renderSessions();
+          renderDashboard();
+          renderReportsSelector();
+          renderPatients(document.getElementById('patient-search')?.value || '');
+        }
+      } catch (e) {
+        console.error('Error loading from localStorage:', e);
+      }
+    }
+
+    function updateAllViews() {
+      saveToLocalStorage();
+
+      if (appointmentView === 'calendar') {
+        renderCalendar();
+      } else {
+        renderAppointmentsList();
+      }
+      
+      renderSessions();
+      renderDashboard();
+      renderReportsSelector();
+      renderPatients(document.getElementById('patient-search')?.value || '');
+      updateAdminStats();
+    }
+
+    document.getElementById('tab-dashboard').onclick = () => switchView('dashboard');
+    document.getElementById('tab-patients').onclick = () => switchView('patients');
+    document.getElementById('tab-appointments').onclick = () => switchView('appointments');
+    document.getElementById('tab-sessions').onclick = () => switchView('sessions');
+    document.getElementById('tab-reports').onclick = () => switchView('reports');
+    document.getElementById('tab-admin').onclick = () => switchView('admin');
+
+    document.getElementById('btn-new-appointment').onclick = showAppointmentForm;
+    document.getElementById('btn-new-patient').onclick = () => showPatientForm();
+    
+    document.getElementById('btn-view-calendar').onclick = () => toggleAppointmentView('calendar');
+    document.getElementById('btn-view-list').onclick = () => toggleAppointmentView('list');
+    
+    document.getElementById('btn-prev-month').onclick = () => {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+      renderCalendar();
+    };
+    
+    document.getElementById('btn-next-month').onclick = () => {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+      renderCalendar();
+    };
+
+    document.getElementById('patient-search').oninput = (e) => {
+      renderPatients(e.target.value);
+    };
+
+    document.getElementById('report-patient-select').onchange = (e) => {
+      const patientId = e.target.value;
+      if (patientId) {
+        selectedReportPatient = allData.find(d => d.__backendId === patientId);
+        renderPatientReport(selectedReportPatient);
+      } else {
+        selectedReportPatient = null;
+        document.getElementById('patient-report-container').classList.add('hidden');
+        document.getElementById('report-empty-state').classList.remove('hidden');
+      }
+    };
+
+    document.getElementById('btn-view-patient-report').onclick = () => {
+      if (selectedReportPatient) {
+        const appointments = allData.filter(d => 
+          d.type === 'appointment' && 
+          d.patient_name.toLowerCase() === selectedReportPatient.patient_name.toLowerCase()
+        );
+        const sessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+        
+        const reportText = generatePatientReportText(selectedReportPatient, sessions);
+        
+        const content = `
+          <div class="report-preview">${reportText}</div>
+          <div class="mt-4 flex justify-end">
+            <button id="close-report-preview-btn" class="px-6 py-2 rounded-lg font-medium" style="background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+              Cerrar
+            </button>
+          </div>
+        `;
+        
+        const modal = showModal(`📄 Reporte de ${selectedReportPatient.patient_name}`, content);
+        
+        document.getElementById('close-report-preview-btn').onclick = () => modal.remove();
+      }
+    };
+
+    document.getElementById('btn-download-patient-report').onclick = () => {
+      if (selectedReportPatient) {
+        const appointments = allData.filter(d => 
+          d.type === 'appointment' && 
+          d.patient_name.toLowerCase() === selectedReportPatient.patient_name.toLowerCase()
+        );
+        const sessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+        
+        const reportText = generatePatientReportText(selectedReportPatient, sessions);
+        const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const patientNameClean = selectedReportPatient.patient_name.replace(/\s+/g, '_');
+        a.download = `reporte_${patientNameClean}_${dateStr}.txt`;
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('Reporte descargado exitosamente');
+      }
+    };
+
+    document.getElementById('btn-goto-patients').onclick = () => {
+      switchView('patients');
+    };
+
+    function updateAdminStats() {
+      const patients = allData.filter(d => d.type === 'patient');
+      const appointments = allData.filter(d => d.type === 'appointment');
+      const evaluatedSessions = appointments.filter(a => a.status === 'completed' && a.evaluated);
+
+      document.getElementById('admin-total-records').textContent = allData.length;
+      document.getElementById('admin-patients-count').textContent = patients.length;
+      document.getElementById('admin-appointments-count').textContent = appointments.length;
+      document.getElementById('admin-evaluated-count').textContent = evaluatedSessions.length;
+
+      const lastBackup = localStorage.getItem('psychologyApp_lastBackup');
+      if (lastBackup) {
+        const backupDate = new Date(lastBackup);
+        document.getElementById('admin-last-backup').textContent = backupDate.toLocaleString('es-ES');
+      } else {
+        document.getElementById('admin-last-backup').textContent = 'Nunca';
+      }
+    }
+
+    document.getElementById('btn-export-backup').onclick = () => {
+      try {
+        const backupData = {
+          version: '1.0',
+          exportDate: new Date().toISOString(),
+          totalRecords: allData.length,
+          data: allData
+        };
+
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+        a.download = `respaldo_psicologia_${dateStr}_${timeStr}.json`;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        localStorage.setItem('psychologyApp_lastBackup', new Date().toISOString());
+        updateAdminStats();
+
+        showToast('✅ Respaldo exportado exitosamente');
+      } catch (error) {
+        showToast('❌ Error al exportar el respaldo', 'error');
+        console.error('Export error:', error);
+      }
+    };
+
+    document.getElementById('file-import-backup').onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      try {
+        const content = await file.text();
+        const backupData = JSON.parse(content);
+
+        if (!backupData.data || !Array.isArray(backupData.data)) {
+          showToast('❌ Formato de respaldo inválido', 'error');
+          return;
+        }
+
+        const confirmContent = `
+          <div style="text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 16px;">⚠�����</div>
+            <h4 style="font-size: ${(window.elementSdk?.config?.font_size || defaultConfig.font_size) * 1.3}px; margin-bottom: 12px; font-weight: bold;">Confirmar Importación</h4>
+            <p style="margin-bottom: 8px;">Estás a punto de importar un respaldo con:</p>
+            <div style="background: rgba(0,0,0,0.05); padding: 16px; border-radius: 8px; margin: 16px 0;">
+              <div style="font-size: 32px; font-weight: bold; margin-bottom: 4px;">${backupData.totalRecords || backupData.data.length}</div>
+              <div style="opacity: 0.75;">registros en total</div>
+              <div style="margin-top: 12px; font-size: 14px; opacity: 0.75;">
+                Exportado: ${backupData.exportDate ? new Date(backupData.exportDate).toLocaleString('es-ES') : 'Fecha desconocida'}
+              </div>
+            </div>
+            <p style="margin-bottom: 16px; color: #ef4444; font-weight: 500;">⚠️ Esto reemplazará todos tus datos actuales</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <button id="cancel-import-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+                Cancelar
+              </button>
+              <button id="confirm-import-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: #ef4444; color: #ffffff;">
+                Sí, Importar Respaldo
+              </button>
+            </div>
+          </div>
+        `;
+
+        const modal = showModal('Confirmar Importación de Respaldo', confirmContent);
+
+        document.getElementById('cancel-import-btn').onclick = () => {
+          modal.remove();
+          e.target.value = '';
+        };
+
+        document.getElementById('confirm-import-btn').onclick = () => {
+          const btn = document.getElementById('confirm-import-btn');
+          btn.textContent = 'Importando...';
+          btn.disabled = true;
+
+          try {
+            allData = backupData.data;
+            updateAllViews();
+            showToast('✅ Respaldo importado exitosamente');
+            modal.remove();
+            switchView('dashboard');
+          } catch (error) {
+            showToast('❌ Error al importar el respaldo', 'error');
+            console.error('Import error:', error);
+            btn.textContent = 'Sí, Importar Respaldo';
+            btn.disabled = false;
+          }
+
+          e.target.value = '';
+        };
+      } catch (error) {
+        showToast('❌ Error al leer el archivo de respaldo', 'error');
+        console.error('File read error:', error);
+        e.target.value = '';
+      }
+    };
+
+    document.getElementById('btn-clear-all-data').onclick = () => {
+      if (isLoading) return;
+
+      const confirmContent = `
+        <div style="text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+          <h4 style="font-size: ${(window.elementSdk?.config?.font_size || defaultConfig.font_size) * 1.3}px; margin-bottom: 12px; font-weight: bold; color: #ef4444;">¡ADVERTENCIA!</h4>
+          <p style="margin-bottom: 16px; font-weight: 500;">Estás a punto de eliminar TODOS los datos de la aplicación:</p>
+          <div style="background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 8px; margin: 16px 0; text-align: left;">
+            <div>✗ Todos los pacientes (${allData.filter(d => d.type === 'patient').length})</div>
+            <div>✗ Todas las citas (${allData.filter(d => d.type === 'appointment').length})</div>
+            <div>✗ Todas las sesiones evaluadas</div>
+            <div>✗ Todo el historial clínico</div>
+          </div>
+          <p style="margin-bottom: 16px; color: #ef4444; font-weight: bold;">⚠️ Esta acción NO se puede deshacer ⚠️</p>
+          <p style="margin-bottom: 16px; font-size: 14px; opacity: 0.75;">Asegúrate de haber exportado un respaldo antes de continuar.</p>
+          <div style="display: flex; gap: 12px; justify-content: center;">
+            <button id="cancel-clear-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: ${window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color}; color: #ffffff;">
+              Cancelar
+            </button>
+            <button id="confirm-clear-btn" style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; background: #ef4444; color: #ffffff;">
+              Sí, Eliminar Todo
+            </button>
+          </div>
+        </div>
+      `;
+
+      const modal = showModal('Eliminar Todos los Datos', confirmContent);
+
+      document.getElementById('cancel-clear-btn').onclick = () => modal.remove();
+
+      document.getElementById('confirm-clear-btn').onclick = () => {
+        if (isLoading) return;
+
+        const btn = document.getElementById('confirm-clear-btn');
+        isLoading = true;
+        btn.textContent = 'Eliminando...';
+        btn.disabled = true;
+
+        try {
+          allData = [];
+          localStorage.removeItem('psychologyApp_lastBackup');
+          updateAllViews();
+          showToast('✅ Todos los datos han sido eliminados');
+          modal.remove();
+          switchView('dashboard');
+        } catch (error) {
+          showToast('❌ Error al eliminar los datos', 'error');
+          console.error('Clear error:', error);
+          btn.textContent = 'Sí, Eliminar Todo';
+          btn.disabled = false;
+        } finally {
+          isLoading = false;
+        }
+      };
+    };
+
+    // Inicialización
+    loadFromLocalStorage();
+    onConfigChange(defaultConfig);
+    switchView('dashboard');
+    toggleAppointmentView('calendar');
+    updateAdminStats();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9adf988ce75a2c86',t:'MTc2NTczNTE3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
