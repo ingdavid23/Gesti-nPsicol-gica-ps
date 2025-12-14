@@ -93,14 +93,18 @@
  <body class="h-full">
   <div id="app" class="h-full w-full overflow-auto"><!-- Header -->
    <header id="header" class="shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-     <div class="flex justify-between items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+     <div class="flex justify-between items-center mb-3 sm:mb-0">
       <div>
-       <h1 id="app-title" class="text-3xl font-bold">Gestión Psicológica</h1>
-       <p id="clinic-name" class="text-sm mt-1 opacity-80">Mi Consultorio</p>
-      </div>
-      <div class="flex gap-2"><button id="tab-dashboard" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📊 Dashboard </button> <button id="tab-patients" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 👤 Pacientes </button> <button id="tab-appointments" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📅 Citas </button> <button id="tab-sessions" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📝 Bitácora </button> <button id="tab-reports" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> 📈 Reportes </button> <button id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors"> ⚙️ Administración </button>
-      </div>
+       <h1 id="app-title" class="text-xl sm:text-3xl font-bold">Gestión Psicológica</h1>
+       <p id="clinic-name" class="text-xs sm:text-sm mt-1 opacity-80">Mi Consultorio</p>
+      </div><button id="mobile-menu-btn" class="sm:hidden p-2 rounded-lg" style="background: rgba(0,0,0,0.1);">
+       <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18" />
+       </svg></button>
+     </div><!-- Desktop Navigation -->
+     <div class="hidden sm:flex gap-2 flex-wrap"><button id="tab-dashboard" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors text-sm"> 📊 Dashboard </button> <button id="tab-patients" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors text-sm"> 👤 Pacientes </button> <button id="tab-appointments" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors text-sm"> 📅 Citas </button> <button id="tab-sessions" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors text-sm"> 📝 Bitácora </button> <button id="tab-reports" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors text-sm"> 📈 Reportes </button> <button id="tab-admin" class="tab-btn px-4 py-2 rounded-lg font-medium transition-colors text-sm"> ⚙️ Administración </button>
+     </div><!-- Mobile Navigation -->
+     <div id="mobile-menu" class="hidden sm:hidden mt-3 space-y-2"><button id="tab-dashboard-mobile" class="tab-btn-mobile w-full text-left px-4 py-3 rounded-lg font-medium transition-colors"> 📊 Dashboard </button> <button id="tab-patients-mobile" class="tab-btn-mobile w-full text-left px-4 py-3 rounded-lg font-medium transition-colors"> 👤 Pacientes </button> <button id="tab-appointments-mobile" class="tab-btn-mobile w-full text-left px-4 py-3 rounded-lg font-medium transition-colors"> 📅 Citas </button> <button id="tab-sessions-mobile" class="tab-btn-mobile w-full text-left px-4 py-3 rounded-lg font-medium transition-colors"> 📝 Bitácora </button> <button id="tab-reports-mobile" class="tab-btn-mobile w-full text-left px-4 py-3 rounded-lg font-medium transition-colors"> 📈 Reportes </button> <button id="tab-admin-mobile" class="tab-btn-mobile w-full text-left px-4 py-3 rounded-lg font-medium transition-colors"> ⚙️ Administración </button>
      </div>
     </div>
    </header><!-- Main Content -->
@@ -163,9 +167,9 @@
      </div>
     </div><!-- Patients View -->
     <div id="view-patients" class="view-content hidden">
-     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">Registro de Pacientes</h2>
-      <div class="flex gap-3"><button id="btn-new-patient" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> ➕ Nuevo Paciente </button>
+     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
+      <h2 class="text-xl sm:text-2xl font-bold">Registro de Pacientes</h2>
+      <div class="flex gap-2 sm:gap-3 w-full sm:w-auto"><button id="btn-new-patient" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow text-sm sm:text-base"> ➕ <span class="hidden sm:inline">Nuevo Paciente</span><span class="sm:hidden">Nuevo</span> </button>
       </div>
      </div><!-- Search Bar -->
      <div class="mb-6"><input type="text" id="patient-search" placeholder="Buscar paciente por nombre, email o teléfono..." class="w-full px-4 py-3 rounded-lg border shadow-sm" style="border-color: rgba(0,0,0,0.1);">
@@ -175,39 +179,39 @@
      </div>
     </div><!-- Appointments View -->
     <div id="view-appointments" class="view-content hidden">
-     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">Gestión de Citas</h2>
-      <div class="flex gap-3"><button id="btn-view-calendar" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> 📅 Calendario </button> <button id="btn-view-list" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> 📋 Lista </button> <button id="btn-new-appointment" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow"> ➕ Nueva Cita </button>
+     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
+      <h2 class="text-xl sm:text-2xl font-bold">Gestión de Citas</h2>
+      <div class="flex gap-2 flex-wrap w-full sm:w-auto"><button id="btn-view-calendar" class="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow text-sm sm:text-base"> 📅 <span class="hidden sm:inline">Calendario</span> </button> <button id="btn-view-list" class="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow text-sm sm:text-base"> 📋 <span class="hidden sm:inline">Lista</span> </button> <button id="btn-new-appointment" class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow text-sm sm:text-base"> ➕ Nueva Cita </button>
       </div>
      </div><!-- Calendar View -->
-     <div id="calendar-view" class="rounded-xl p-6 shadow-md mb-6">
-      <div class="flex justify-between items-center mb-6"><button id="btn-prev-month" class="px-4 py-2 rounded-lg font-medium" style="background: #64748b; color: #ffffff;"> ← Anterior </button>
-       <h3 id="calendar-month-year" class="text-2xl font-bold"></h3><button id="btn-next-month" class="px-4 py-2 rounded-lg font-medium" style="background: #64748b; color: #ffffff;"> Siguiente → </button>
+     <div id="calendar-view" class="rounded-xl p-3 sm:p-6 shadow-md mb-6">
+      <div class="flex justify-between items-center mb-4 sm:mb-6"><button id="btn-prev-month" class="px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base" style="background: #64748b; color: #ffffff;"> <span class="hidden sm:inline">← Anterior</span> <span class="sm:hidden">←</span> </button>
+       <h3 id="calendar-month-year" class="text-lg sm:text-2xl font-bold"></h3><button id="btn-next-month" class="px-3 sm:px-4 py-2 rounded-lg font-medium text-sm sm:text-base" style="background: #64748b; color: #ffffff;"> <span class="hidden sm:inline">Siguiente →</span> <span class="sm:hidden">→</span> </button>
       </div>
-      <div class="grid grid-cols-7 gap-2">
-       <div class="text-center font-bold py-2">
+      <div class="grid grid-cols-7 gap-1 sm:gap-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Dom
        </div>
-       <div class="text-center font-bold py-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Lun
        </div>
-       <div class="text-center font-bold py-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Mar
        </div>
-       <div class="text-center font-bold py-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Mié
        </div>
-       <div class="text-center font-bold py-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Jue
        </div>
-       <div class="text-center font-bold py-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Vie
        </div>
-       <div class="text-center font-bold py-2">
+       <div class="text-center font-bold py-1 sm:py-2 text-xs sm:text-base">
         Sáb
        </div>
       </div>
-      <div id="calendar-days" class="grid grid-cols-7 gap-2 mt-2"></div>
+      <div id="calendar-days" class="grid grid-cols-7 gap-1 sm:gap-2 mt-2"></div>
      </div><!-- List View -->
      <div id="list-view" class="rounded-xl p-6 shadow-md hidden">
       <div id="appointments-list" class="space-y-3">
@@ -216,8 +220,8 @@
      </div>
     </div><!-- Sessions View -->
     <div id="view-sessions" class="view-content hidden">
-     <div class="mb-6">
-      <h2 class="text-2xl font-bold">Bitácora de Sesiones</h2>
+     <div class="mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-bold">Bitácora de Sesiones</h2>
      </div><!-- Pending Evaluations -->
      <div class="rounded-xl p-6 shadow-md mb-6">
       <h3 class="text-xl font-bold mb-4">⏳ Citas Pendientes de Evaluar</h3>
@@ -233,9 +237,9 @@
      </div>
     </div><!-- Administration View -->
     <div id="view-admin" class="view-content hidden">
-     <div class="mb-6">
-      <h2 class="text-2xl font-bold mb-2">Administración del Sistema</h2>
-      <p class="opacity-75">Gestiona tus datos y realiza respaldos de seguridad</p>
+     <div class="mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-bold mb-2">Administración del Sistema</h2>
+      <p class="opacity-75 text-sm sm:text-base">Gestiona tus datos y realiza respaldos de seguridad</p>
      </div><!-- Backup Section -->
      <div class="rounded-xl p-6 shadow-md mb-6">
       <h3 class="text-xl font-bold mb-4">💾 Respaldo de Datos</h3>
@@ -258,7 +262,7 @@
         </div>
        </div>
       </div>
-      <div class="flex gap-3"><button id="btn-export-backup" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow" style="background: #3b82f6; color: #ffffff;"> 📥 Exportar Respaldo (JSON) </button> <label for="file-import-backup" class="px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow cursor-pointer" style="background: #10b981; color: #ffffff; display: inline-block;"> 📤 Importar Respaldo (JSON) </label> <input type="file" id="file-import-backup" accept=".json" style="display: none;">
+      <div class="flex flex-col sm:flex-row gap-2 sm:gap-3"><button id="btn-export-backup" class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow text-sm sm:text-base" style="background: #3b82f6; color: #ffffff;"> 📥 Exportar Respaldo </button> <label for="file-import-backup" class="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-shadow cursor-pointer text-center text-sm sm:text-base" style="background: #10b981; color: #ffffff; display: block;"> 📤 Importar Respaldo </label> <input type="file" id="file-import-backup" accept=".json" style="display: none;">
       </div>
      </div><!-- Data Overview -->
      <div class="rounded-xl p-6 shadow-md mb-6">
@@ -317,9 +321,9 @@
      </div>
     </div><!-- Reports View -->
     <div id="view-reports" class="view-content hidden">
-     <div class="mb-6">
-      <h2 class="text-2xl font-bold mb-2">Reportes por Paciente</h2>
-      <p class="opacity-75">Genera informes detallados del progreso y sesiones de cada paciente</p>
+     <div class="mb-4 sm:mb-6">
+      <h2 class="text-xl sm:text-2xl font-bold mb-2">Reportes por Paciente</h2>
+      <p class="opacity-75 text-sm sm:text-base">Genera informes detallados del progreso y sesiones de cada paciente</p>
      </div><!-- Patient Selector -->
      <div class="rounded-xl p-6 shadow-md mb-6"><label class="block mb-2 font-medium">Seleccionar Paciente:</label> <select id="report-patient-select" class="w-full px-4 py-3 rounded-lg border shadow-sm" style="border-color: rgba(0,0,0,0.1); font-size: 16px;"> <option value="">Selecciona un paciente para generar su reporte...</option> </select>
      </div><!-- Report Content -->
@@ -335,7 +339,7 @@
           <p class="opacity-75" id="report-patient-info"></p>
          </div>
         </div>
-        <div class="flex gap-2"><button id="btn-view-patient-report" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #3b82f6; color: #ffffff;"> 👁️ Vista Previa </button> <button id="btn-download-patient-report" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #10b981; color: #ffffff;"> 💾 Descargar </button>
+        <div class="flex flex-col sm:flex-row gap-2"><button id="btn-view-patient-report" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #3b82f6; color: #ffffff;"> 👁️ Vista Previa </button> <button id="btn-download-patient-report" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: #10b981; color: #ffffff;"> 💾 Descargar </button>
         </div>
        </div><!-- Quick Stats -->
        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -439,14 +443,32 @@
       document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
       
+      // Close mobile menu
+      document.getElementById('mobile-menu').classList.add('hidden');
+      
+      // Update desktop tabs
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.style.background = window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color;
         btn.style.color = '#ffffff';
       });
       
       const activeTab = document.getElementById(`tab-${viewName}`);
-      activeTab.style.background = window.elementSdk?.config?.primary_color || defaultConfig.primary_color;
-      activeTab.style.color = '#ffffff';
+      if (activeTab) {
+        activeTab.style.background = window.elementSdk?.config?.primary_color || defaultConfig.primary_color;
+        activeTab.style.color = '#ffffff';
+      }
+      
+      // Update mobile tabs
+      document.querySelectorAll('.tab-btn-mobile').forEach(btn => {
+        btn.style.background = window.elementSdk?.config?.secondary_color || defaultConfig.secondary_color;
+        btn.style.color = '#ffffff';
+      });
+      
+      const activeMobileTab = document.getElementById(`tab-${viewName}-mobile`);
+      if (activeMobileTab) {
+        activeMobileTab.style.background = window.elementSdk?.config?.primary_color || defaultConfig.primary_color;
+        activeMobileTab.style.color = '#ffffff';
+      }
     }
 
     function showModal(title, content) {
@@ -517,7 +539,7 @@
             </div>
 
             <div>
-              <label style="display: block; margin-bottom: 8px; font-weight: 500;">G��nero *</label>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Genero *</label>
               <select id="patient-gender" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: ${window.elementSdk?.config?.font_size || defaultConfig.font_size}px;">
                 <option value="">Seleccionar...</option>
                 <option value="masculino" ${patient?.gender === 'masculino' ? 'selected' : ''}>Masculino</option>
@@ -1438,25 +1460,27 @@
         const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
         
         const dayDiv = document.createElement('div');
-        dayDiv.className = 'aspect-square border rounded-lg p-2 cursor-pointer hover:shadow-md transition-shadow';
+        dayDiv.className = 'aspect-square border rounded-lg p-1 sm:p-2 cursor-pointer hover:shadow-md transition-shadow';
         dayDiv.style.background = window.elementSdk?.config?.surface_color || defaultConfig.surface_color;
         dayDiv.style.borderColor = isToday ? (window.elementSdk?.config?.primary_color || defaultConfig.primary_color) : 'rgba(0,0,0,0.1)';
         dayDiv.style.borderWidth = isToday ? '2px' : '1px';
         
-        let content = `<div class="font-bold text-sm mb-1">${day}</div>`;
+        let content = `<div class="font-bold text-xs sm:text-sm mb-1">${day}</div>`;
         
         if (dayAppointments.length > 0) {
           content += `<div class="space-y-1">`;
-          dayAppointments.slice(0, 2).forEach(apt => {
+          // Show 1 appointment on mobile, 2 on desktop
+          const maxAppointments = window.innerWidth < 640 ? 1 : 2;
+          dayAppointments.slice(0, maxAppointments).forEach(apt => {
             const bgColor = apt.status === 'pending' ? '#fbbf24' : apt.evaluated ? '#10b981' : '#ef4444';
             content += `
-              <div class="text-xs px-1 py-0.5 rounded truncate" style="background: ${bgColor}; color: #ffffff;">
-                ${apt.time} ${apt.patient_name}
+              <div class="text-xs px-1 py-0.5 rounded truncate" style="background: ${bgColor}; color: #ffffff; font-size: 0.65rem;">
+                <span class="hidden sm:inline">${apt.time}</span> ${apt.patient_name}
               </div>
             `;
           });
-          if (dayAppointments.length > 2) {
-            content += `<div class="text-xs opacity-75">+${dayAppointments.length - 2} más</div>`;
+          if (dayAppointments.length > maxAppointments) {
+            content += `<div class="text-xs opacity-75" style="font-size: 0.65rem;">+${dayAppointments.length - maxAppointments}</div>`;
           }
           content += `</div>`;
         }
@@ -1974,12 +1998,27 @@
       updateAdminStats();
     }
 
+    // Desktop navigation
     document.getElementById('tab-dashboard').onclick = () => switchView('dashboard');
     document.getElementById('tab-patients').onclick = () => switchView('patients');
     document.getElementById('tab-appointments').onclick = () => switchView('appointments');
     document.getElementById('tab-sessions').onclick = () => switchView('sessions');
     document.getElementById('tab-reports').onclick = () => switchView('reports');
     document.getElementById('tab-admin').onclick = () => switchView('admin');
+    
+    // Mobile navigation
+    document.getElementById('tab-dashboard-mobile').onclick = () => switchView('dashboard');
+    document.getElementById('tab-patients-mobile').onclick = () => switchView('patients');
+    document.getElementById('tab-appointments-mobile').onclick = () => switchView('appointments');
+    document.getElementById('tab-sessions-mobile').onclick = () => switchView('sessions');
+    document.getElementById('tab-reports-mobile').onclick = () => switchView('reports');
+    document.getElementById('tab-admin-mobile').onclick = () => switchView('admin');
+    
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn').onclick = () => {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    };
 
     document.getElementById('btn-new-appointment').onclick = showAppointmentForm;
     document.getElementById('btn-new-patient').onclick = () => showPatientForm();
@@ -2259,5 +2298,5 @@
     toggleAppointmentView('calendar');
     updateAdminStats();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9adf988ce75a2c86',t:'MTc2NTczNTE3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9adfdfa4751cf0b8',t:'MTc2NTczODA4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
